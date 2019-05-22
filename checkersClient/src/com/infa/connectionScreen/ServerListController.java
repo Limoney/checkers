@@ -28,6 +28,7 @@ public class ServerListController implements Initializable
     @FXML private StackPane notificationPanel;
     @FXML private StackPane serverTableWrapper;
     @FXML private GridPane directConnectWrapper;
+    private Connection connection;
 
     @Override
     public void initialize(URL location, ResourceBundle resources)
@@ -65,26 +66,29 @@ public class ServerListController implements Initializable
 //            makeNotification("unable to access server.");
 //            return;
 //        }
-
-        Connection c = new Connection();
-        c.connect(ip,port);
+        notificationPanel.setVisible(true);
+        connection = new Connection();
+        connection.connect(ip,port);
         Platform.runLater(new Thread()
         {
             @Override
             public void run()
             {
-                if(!c.isConnected())
+                if(!connection.isConnected())
                 {
                     makeNotification("Cannot connecto to the server");
                     return;
                 }
-                c.send(new Packet(Packet.HEADER_REQUEST_ROOM_LIST,null));
-                while(true)
+                connection.send(new Packet(Packet.HEADER_REQUEST_ROOM_LIST,null));
+                int i=0;
+                boolean run=true;
+                while(run)
                 {
-                    if(c.isDataReady())
+                    System.out.println(i++);
+                    if(connection.isDataReady())
                     {
-                        showRoomList((ArrayList<Integer>)c.getRecivedData().getData());
-                        break;
+                        showRoomList((ArrayList<Integer>)connection.getRecivedData().getData());
+                        run=false;
                     }
                 }
             }
@@ -123,11 +127,25 @@ public class ServerListController implements Initializable
     {
         System.out.println("hello?");
         notificationPanel.lookup("#roomSelectionWrapper").setVisible(true);
-        TableView tab = (TableView)((AnchorPane)notificationPanel.lookup("#roomSelectionWrapper")).lookup("#roomTable");
+        TableView<Integer> tab = (TableView<Integer>)((AnchorPane)notificationPanel.lookup("#roomSelectionWrapper")).lookup("#roomTable");
         for(int i : roomIDs)
         {
-            tab.getColumns().add(i,"a");
+            tab.getItems().add(i);//fixme https://www.youtube.com/watch?v=O4BHfZQlSbs
         }
         System.out.println("done");
+    }
+
+    public void closeRoomListMenu(ActionEvent actionEvent)
+    {
+        notificationPanel.setVisible(false);
+        notificationPanel.lookup("#roomSelectionWrapper").setVisible(false);
+        connection.close();
+    }
+
+    public void createRoom(ActionEvent actionEvent)
+    {
+        Packet p = new Packet(Packet.HEADER_REQUEST_NEW_ROOM,null);
+        connection.send(p);
+        //here create thread and wait for srv response
     }
 }

@@ -1,0 +1,7 @@
+.communique
+{
+    -fx-background-color: #555;
+    -fx-text-fill: #eee;
+    -fx-padding: 10px;
+    -fx-border-insets: 5px;
+}

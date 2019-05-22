@@ -34,6 +34,11 @@ public class Connection implements Serializable
         isConnected = false;
     }
 
+    public void finalize()
+    {
+        this.close();
+    }
+
     public void connect(String ip, int port)
     {
         try
