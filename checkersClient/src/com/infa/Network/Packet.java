@@ -1,4 +1,4 @@
-package com.infa.Network;
+package com.infa.network;
 
 import java.io.Serializable;
 
@@ -11,9 +11,10 @@ public class Packet implements Serializable
     public static final byte HEADER_REQUEST_JOIN_ROOM = 21;
     public static final byte HEADER_RESPONSE_JOIN_ROOM = 22;
     public static final byte HEADER_REQUEST_NEW_ROOM = 31;
-    public static final byte HEADER_REQUEST_LEAVE_ROOM = 32;
-    public static final byte HEADER_CHAT_MESSAGE = 4;
-    public static final byte HEADER_RESPONSE_ERROR = 5;
+    public static final byte HEADER_RESPONSE_NEW_ROOM = 32;
+    public static final byte HEADER_REQUEST_LEAVE_ROOM = 41;
+    public static final byte HEADER_CHAT_MESSAGE = 51;
+    public static final byte HEADER_RESPONSE_ERROR = 61;
 
     public Packet()
     {

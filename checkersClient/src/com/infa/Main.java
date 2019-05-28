@@ -13,8 +13,8 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        //Parent root = FXMLLoader.load(getClass().getResource("MainMenu/mainMenu.fxml"));
-        Parent root = FXMLLoader.load(getClass().getResource("MainMenu/mainMenu.fxml"));
+        //Parent root = FXMLLoader.load(getClass().getResource("mainMenu/mainMenu.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("mainMenu/mainMenu.fxml"));
         primaryStage.setTitle("Hello World");
         Scene s =new Scene(root, defaultWindowWidth, defaultWindowHight);
         s.getStylesheets().add(getClass().getResource("css/main.css").toExternalForm());

@@ -1,4 +1,4 @@
-package com.infa.Network;
+package com.infa.network;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -11,7 +11,7 @@ import java.util.HashMap;
 public class Server
 {
     protected ServerSocket server;
-    //protected ArrayList<com.infa.Network.Connection> clients;
+    //protected ArrayList<com.infa.network.Connection> clients;
 
     protected Thread listeningThread;
     protected boolean keepListening;
@@ -48,13 +48,13 @@ public class Server
                 {
                     server = new ServerSocket(port);
                     clients_ = new HashMap<Connection, Thread>();
-                    //clients = new ArrayList<com.infa.Network.Connection>();
+                    //clients = new ArrayList<com.infa.network.Connection>();
                 }
                 catch (IOException e)
                 {
                     e.printStackTrace();
                 }
-                System.out.println("com.infa.Network.Server Listening on port " + port);
+                System.out.println("com.infa.network.Server Listening on port " + port);
                 while(keepListening)
                 {
                     try
@@ -62,7 +62,7 @@ public class Server
                         Socket client = server.accept();
                         Connection c = new Connection();
                         c.setId(nextConnectionId++);
-                        System.out.println("Client has joined on port " + client.getPort()+". com.infa.Network.Connection id "+c.getId());
+                        System.out.println("Client has joined on port " + client.getPort()+". com.infa.network.Connection id "+c.getId());
                         ObjectOutputStream out = new ObjectOutputStream(client.getOutputStream());
                         ObjectInputStream in = new ObjectInputStream(client.getInputStream());
                         c.setOut(out);
@@ -70,7 +70,7 @@ public class Server
                         c.setSocket(client);
                         clients_.put(c,addReciveThread(c));
                         clients_.get(c).start();
-                        //c.send(new Packet(Packet.HEADER_CHAT_MESSAGE,"com.infa.Network.Server: hello"));
+                        //c.send(new Packet(Packet.HEADER_CHAT_MESSAGE,"com.infa.network.Server: hello"));
                     }
                     catch (IOException e)
                     {
@@ -109,7 +109,7 @@ public class Server
 
 //    public void startReceiving()
 //    {
-//        for(com.infa.Network.Connection c : clients)
+//        for(com.infa.network.Connection c : clients)
 //        {
 //            addReciveThread(c);
 //        }
@@ -150,9 +150,10 @@ public class Server
                                 //i wil refactor all of this this later
                                 //just want it to work
                                 //check if user isn't already in room
+                                Room tmp;
                                 if(c.getCurrentRoomRef()==null)
                                 {
-                                    Room tmp = new Room();
+                                    tmp = new Room();
                                     tmp.ref1 = c;
                                     rooms.add(tmp);
                                     c.setCurrentRoomRef(tmp);
@@ -162,7 +163,7 @@ public class Server
                                     //after user leaves room will become empty so it will be removed
                                     if(c.getCurrentRoomRef().ref2==null)
                                     {
-                                        Room tmp = new Room();
+                                        tmp = new Room();
                                         tmp.ref1 = c;
                                         rooms.add(tmp);
                                         leaveRoom(c);
@@ -173,11 +174,15 @@ public class Server
                                     else
                                     {
                                         leaveRoom(c);
-                                        Room tmp = new Room();
+                                        tmp = new Room();
                                         tmp.ref1 = c;
                                         rooms.add(tmp);
                                         c.setCurrentRoomRef(tmp);
                                     }
+                                    Packet p = new Packet();
+                                    p.setHeader(Packet.HEADER_RESPONSE_NEW_ROOM);
+                                    p.setData(tmp.getBoard());
+                                    c.send(p);//tu kończe bo lenia mam - zrobić odbiór po drugiej stronie
                                 }
                             }
                             break;
@@ -205,14 +210,21 @@ public class Server
                                 {
                                     if (e.id == roomId) tmp = e;
                                     c.setCurrentRoomRef(e);
+                                    Packet p = new Packet(Packet.HEADER_RESPONSE_JOIN_ROOM,"replace me with board object");
+                                    c.send(p);
                                 }
                                 if(tmp!=null)
                                 {
-                                    if(tmp.ref2==null)tmp.ref2 = c;
+                                    if(tmp.ref2==null)
+                                    {
+                                        tmp.ref2 = c;
+                                        Packet p = new Packet(Packet.HEADER_RESPONSE_JOIN_ROOM,"replace me with board object");
+                                        c.send(p);
+                                    }
                                     else
                                     {
                                         //send error
-                                        Packet p = new Packet(Packet.HEADER_RESPONSE_ERROR,"com.infa.Network.Room is full");
+                                        Packet p = new Packet(Packet.HEADER_RESPONSE_ERROR,"Room is full");
                                         c.send(p);
                                     }
                                 }
@@ -229,7 +241,7 @@ public class Server
                         //send to all
 //                        if( data.toString().charAt(data.toString().length()-1) =='>')//> temp
 //                        {
-//                            for(com.infa.Network.Connection cc : clients_.keySet())
+//                            for(com.infa.network.Connection cc : clients_.keySet())
 //                            {
 //                                if(cc.getId()!=c.getId())
 //                                {
@@ -273,7 +285,7 @@ public class Server
         {
             e.printStackTrace();
         }
-        System.out.println("com.infa.Network.Server closed.");
+        System.out.println("com.infa.network.Server closed.");
     }
 
     public void closeAllConnections()

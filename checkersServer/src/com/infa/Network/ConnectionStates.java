@@ -1,4 +1,4 @@
-package com.infa.Network;
+package com.infa.network;
 
 public enum ConnectionStates
 {

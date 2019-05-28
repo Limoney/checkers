@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.infa.MainMenu.MenuController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.infa.mainMenu.MenuController">
     <children>
         <AnchorPane prefHeight="80.0" prefWidth="800.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
@@ -39,12 +39,12 @@
                     <children>
                         <StackPane prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                             <children>
-                                <Button disable="true" mnemonicParsing="false" onAction="#hostGame" prefHeight="35.0" prefWidth="120.0" text="Host Game" />
+                                <Button disable="true" mnemonicParsing="false" onAction="#hostGame" prefHeight="35.0" prefWidth="120.0" text="Host game" />
                             </children>
                         </StackPane>
                         <StackPane prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
                             <children>
-                                <Button mnemonicParsing="false" onAction="#showServerSelectionScene" prefHeight="35.0" prefWidth="120.0" text="Join Game" />
+                                <Button mnemonicParsing="false" onAction="#showServerSelectionScene" prefHeight="35.0" prefWidth="120.0" text="Join game" />
                             </children>
                         </StackPane>
                     </children>

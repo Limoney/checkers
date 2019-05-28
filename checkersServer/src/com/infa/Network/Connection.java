@@ -1,4 +1,4 @@
-package com.infa.Network;
+package com.infa.network;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -120,7 +120,7 @@ public class Connection implements Serializable
                         }
                         if(state!=ConnectionStates.LOCALLY_CLOSED)state = ConnectionStates.REMOTELY_CLOSED;
                         isConnected = false;
-                        System.out.println("com.infa.Network.Connection with server has been broken");
+                        System.out.println("com.infa.network.Connection with server has been broken");
                         e.printStackTrace();
                     }
                 }

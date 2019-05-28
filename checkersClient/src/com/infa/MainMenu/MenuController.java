@@ -1,4 +1,4 @@
-package com.infa.MainMenu;
+package com.infa.mainMenu;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;

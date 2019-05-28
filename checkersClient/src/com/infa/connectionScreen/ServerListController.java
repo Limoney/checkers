@@ -1,7 +1,7 @@
 package com.infa.connectionScreen;
 
-import com.infa.Network.Connection;
-import com.infa.Network.Packet;
+import com.infa.network.Connection;
+import com.infa.network.Packet;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -11,6 +11,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
@@ -33,12 +34,17 @@ public class ServerListController implements Initializable
     @Override
     public void initialize(URL location, ResourceBundle resources)
     {
+        TableColumn<Integer, Integer> roomid = new TableColumn<Integer, Integer>("Room ID");
+        roomid.setCellValueFactory(new PropertyValueFactory<Integer,Integer>("value"));
+        ListView tab = (ListView) ((AnchorPane)notificationPanel.lookup("#roomSelectionWrapper")).lookup("#roomList");
+        //tab.getColumns().add(roomid);
+        Integer a = 1;
 
     }
 
     public void showServerSelectionScene(ActionEvent e) throws IOException
     {
-        Parent p = FXMLLoader.load(getClass().getResource("../MainMenu/mainMenu.fxml"));
+        Parent p = FXMLLoader.load(getClass().getResource("../mainMenu/mainMenu.fxml"));
         Stage s = (Stage)((Node)e.getSource()).getScene().getWindow();
         s.setScene(new Scene(p));
     }
@@ -69,30 +75,7 @@ public class ServerListController implements Initializable
         notificationPanel.setVisible(true);
         connection = new Connection();
         connection.connect(ip,port);
-        Platform.runLater(new Thread()
-        {
-            @Override
-            public void run()
-            {
-                if(!connection.isConnected())
-                {
-                    makeNotification("Cannot connecto to the server");
-                    return;
-                }
-                connection.send(new Packet(Packet.HEADER_REQUEST_ROOM_LIST,null));
-                int i=0;
-                boolean run=true;
-                while(run)
-                {
-                    System.out.println(i++);
-                    if(connection.isDataReady())
-                    {
-                        showRoomList((ArrayList<Integer>)connection.getRecivedData().getData());
-                        run=false;
-                    }
-                }
-            }
-        });
+        this.refreshRoomList(null);
 //        g.startNewGame();
 //        Stage s = (Stage)((Node)e.getSource()).getScene().getWindow();
 //        s.setScene(new Scene(p));
@@ -127,10 +110,12 @@ public class ServerListController implements Initializable
     {
         System.out.println("hello?");
         notificationPanel.lookup("#roomSelectionWrapper").setVisible(true);
-        TableView<Integer> tab = (TableView<Integer>)((AnchorPane)notificationPanel.lookup("#roomSelectionWrapper")).lookup("#roomTable");
+        ListView roomlist = (ListView) ((AnchorPane)notificationPanel.lookup("#roomSelectionWrapper")).lookup("#roomList");
+        roomlist.getItems().clear();
         for(int i : roomIDs)
         {
-            tab.getItems().add(i);//fixme https://www.youtube.com/watch?v=O4BHfZQlSbs
+//            tab.getItems().add(i);//fixme https://www.youtube.com/watch?v=O4BHfZQlSbs
+            roomlist.getItems().add("Room "+i);
         }
         System.out.println("done");
     }
@@ -147,5 +132,70 @@ public class ServerListController implements Initializable
         Packet p = new Packet(Packet.HEADER_REQUEST_NEW_ROOM,null);
         connection.send(p);
         //here create thread and wait for srv response
+
+    }
+
+    public void refreshRoomList(ActionEvent actionEvent)
+    {
+        Platform.runLater(new Thread()
+        {
+            @Override
+            public void run()
+            {
+                if(!connection.isConnected())
+                {
+                    makeNotification("Cannot connecto to the server");
+                    return;
+                }
+                connection.send(new Packet(Packet.HEADER_REQUEST_ROOM_LIST,null));
+                boolean run=true;
+                while(run)
+                {
+                    if(connection.isDataReady())
+                    {
+                        showRoomList((ArrayList<Integer>)connection.getRecivedData().getData());
+                        run=false;
+                    }
+                }
+            }
+        });
+    }
+
+    public void joinRoom(ActionEvent actionEvent)
+    {
+        Platform.runLater(new Thread()
+        {
+            @Override
+            public void run()
+            {
+                if(!connection.isConnected())
+                {
+                    makeNotification("Cannot connecto to the server");
+                    return;
+                }
+                ListView roomlist = (ListView) ((AnchorPane)notificationPanel.lookup("#roomSelectionWrapper")).lookup("#roomList");
+                String tmp = (String)roomlist.getSelectionModel().getSelectedItem();
+                if(tmp.equals("") || tmp==null) return;
+                Integer roomid =  Integer.parseInt(tmp.substring(tmp.indexOf(' ')+1));
+                connection.send(new Packet(Packet.HEADER_REQUEST_JOIN_ROOM,roomid));
+                boolean run=true;
+                while(run)
+                {
+                    if(connection.isDataReady())
+                    {
+                        //load game here
+                        if(connection.getRecivedData().getHeader()==Packet.HEADER_RESPONSE_ERROR)
+                        {
+                            makeNotification(connection.getRecivedData().getData().toString());
+                        }
+                        else
+                        {
+                            System.out.println("YOU IN BOI");
+                        }
+                        run=false;
+                    }
+                }
+            }
+        });
     }
 }

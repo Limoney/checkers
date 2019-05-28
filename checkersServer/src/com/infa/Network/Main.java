@@ -1,4 +1,6 @@
-package com.infa.Network;
+package com.infa.network;
+
+import game.Board;
 
 import java.util.Scanner;
 
@@ -6,9 +8,12 @@ public class Main
 {
     public static void main(String[] args)
     {
-        System.out.println("com.infa.Network.Server");
+        System.out.println("com.infa.network.Server");
         Server srv = new Server();
         srv.startListening(25565);
+
+        Board a = new Board();
+        a.show();
 
         Scanner s = new Scanner(System.in);
         boolean run = true;
