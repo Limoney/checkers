@@ -64,7 +64,7 @@
                      <children>
                         <TableView fx:id="roomTable" prefHeight="237.0" prefWidth="500.0" GridPane.rowIndex="1">
                           <columns>
-                            <TableColumn prefWidth="245.0" text="com.infa.Network.Room id" />
+                            <TableColumn prefWidth="245.0" text="com.infa.network.Room id" />
                             <TableColumn prefWidth="254.0" text="Action" />
                           </columns>
                         </TableView>

@@ -179,11 +179,11 @@ public class Server
                                         rooms.add(tmp);
                                         c.setCurrentRoomRef(tmp);
                                     }
-                                    Packet p = new Packet();
-                                    p.setHeader(Packet.HEADER_RESPONSE_NEW_ROOM);
-                                    p.setData(tmp.getBoard());
-                                    c.send(p);//tu kończe bo lenia mam - zrobić odbiór po drugiej stronie
                                 }
+                                Packet p = new Packet();
+                                p.setHeader(Packet.HEADER_RESPONSE_NEW_ROOM);
+                                p.setData(tmp.getBoard());
+                                c.send(p);//tu kończe bo lenia mam - zrobić odbiór po drugiej stronie
                             }
                             break;
                             case Packet.HEADER_REQUEST_LEAVE_ROOM:

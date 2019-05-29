@@ -24,6 +24,7 @@ public class Connection implements Serializable
 
     protected Packet recivedData;
     protected boolean isDataReady;
+    private static Object isDataReadySynchronized = new Object();
 
 
     public Connection()
@@ -61,7 +62,10 @@ public class Connection implements Serializable
         try
         {
             out.writeObject(data);
-            isDataReady = false;
+            synchronized (isDataReadySynchronized) {
+
+                isDataReady = false;
+            }
         }
         catch (IOException e)
         {
@@ -94,8 +98,9 @@ public class Connection implements Serializable
                     try
                     {
                         recivedData = (Packet) in.readObject();
-                        isDataReady = true;
-
+                        synchronized (isDataReadySynchronized) {
+                            isDataReady = true;
+                        }
                         //byte header = data.getHeader();
 //                        switch (header)
 //                        {
@@ -230,12 +235,18 @@ public class Connection implements Serializable
 
     public boolean isDataReady()
     {
+        synchronized (isDataReadySynchronized) {
+
         return isDataReady;
+        }
     }
 
     public void setDataReady(boolean dataReady)
     {
-        isDataReady = dataReady;
+        synchronized (isDataReadySynchronized) {
+
+            isDataReady = dataReady;
+        }
     }
 
 

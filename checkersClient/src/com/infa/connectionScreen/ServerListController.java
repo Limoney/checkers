@@ -1,7 +1,9 @@
 package com.infa.connectionScreen;
 
+import com.infa.game.GameController;
 import com.infa.network.Connection;
 import com.infa.network.Packet;
+import game.Board;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -132,7 +134,39 @@ public class ServerListController implements Initializable
         Packet p = new Packet(Packet.HEADER_REQUEST_NEW_ROOM,null);
         connection.send(p);
         //here create thread and wait for srv response
-
+        Platform.runLater(new Thread()
+        {
+            @Override
+            public void run()
+            {
+                if(!connection.isConnected())
+                {
+                    makeNotification("Cannot connecto to the server");
+                    return;
+                }
+                boolean run=true;
+                while(run)
+                {
+                    if(connection.isDataReady())
+                    {
+                        Board board = (Board)connection.getRecivedData().getData();
+                        try
+                        {
+                            FXMLLoader loader = new FXMLLoader(getClass().getResource("../game/board.fxml"));
+                            Parent p = loader.load();
+                            GameController g = loader.getController();
+                            Stage s = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
+                            s.setScene(new Scene(p));
+                        }
+                        catch(Exception ex)
+                        {
+                            ex.printStackTrace();
+                        }
+                        run=false;
+                    }
+                }
+            }
+        });
     }
 
     public void refreshRoomList(ActionEvent actionEvent)
