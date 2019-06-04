@@ -206,20 +206,27 @@ public class Server
                                 }
 
                                 Room tmp = null;
+                                //find room with given id
                                 for (Room e : rooms)
                                 {
                                     if (e.id == roomId) tmp = e;
-                                    c.setCurrentRoomRef(e);
-                                    Packet p = new Packet(Packet.HEADER_RESPONSE_JOIN_ROOM,"replace me with board object");
-                                    c.send(p);
+                                    //commented 04.06.2019
+//                                    c.setCurrentRoomRef(e);
+//                                    Packet p = new Packet(Packet.HEADER_RESPONSE_JOIN_ROOM,"replace me with board object");
+//                                    c.send(p);
+                                    //break?
                                 }
                                 if(tmp!=null)
                                 {
+                                    //if room exists check if there is only one player
                                     if(tmp.ref2==null)
                                     {
                                         tmp.ref2 = c;
                                         Packet p = new Packet(Packet.HEADER_RESPONSE_JOIN_ROOM,"replace me with board object");
                                         c.send(p);
+                                        p.setHeader(Packet.HEADER_RESPONSE_USER_HAS_JOINED);
+                                        p.setData("replace me with board object");
+                                        tmp.ref1.send(p);
                                     }
                                     else
                                     {

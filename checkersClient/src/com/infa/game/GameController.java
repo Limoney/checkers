@@ -1,5 +1,8 @@
 package com.infa.game;
 
+import com.infa.network.Connection;
+import com.infa.network.Packet;
+import game.Board;
 import javafx.animation.AnimationTimer;
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
@@ -18,7 +21,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 
 import java.io.IOException;
@@ -40,7 +42,9 @@ public class GameController implements Initializable
     private int boardSize = 8;
     private ArrayList<Tile> tiles;
     private ArrayList<Pawn> pawns;
+    private Board board;
     private GameState gameState;
+    private Connection connectionRef;
 
     //network stuff
     //Connection connection;
@@ -54,7 +58,7 @@ public class GameController implements Initializable
         ChangeListener<Number> resize =(observable, oldValue, newValue) -> resizeBoard();
         windowFrame.widthProperty().addListener(resize);
         windowFrame.heightProperty().addListener(resize);
-        //startNewGame();
+        startNewGame();
     }
 
     public void newGame(ActionEvent e)
@@ -77,10 +81,9 @@ public class GameController implements Initializable
 
     public void startNewGame()
     {
-        makeNotification("waiting for player");
         gameState = GameState.HAS_NOT_STARTED_YET;
+        makeNotification("waiting for player");
         generateBoard();
-
         final long startNanoTime = System.nanoTime();
         //main game loop
         animation =new AnimationTimer()
@@ -90,15 +93,9 @@ public class GameController implements Initializable
                 double t = (currentNanoTime - startNanoTime) / 1000000000.0;
                 updateNetwork();
                 updateGraphics();
-
             }
         };
         animation.start();
-    }
-
-    public boolean initializeNetwork()
-    {
-        throw new NotImplementedException();
     }
 
     private void resizeUI()
@@ -111,7 +108,7 @@ public class GameController implements Initializable
 
         double chmh = windowFrame.getHeight() - nav.getHeight() - chatInput.getHeight();
         chatWrapper.setPrefHeight(chmh);
-        System.out.println("pos "+ canvas.getLayoutX() + "  "+canvas.getLayoutY());
+        //System.out.println("pos "+ canvas.getLayoutX() + "  "+canvas.getLayoutY());
     }
 
     private void generateBoard()
@@ -120,7 +117,7 @@ public class GameController implements Initializable
         tiles = new ArrayList<Tile>();
         pawns = new ArrayList<Pawn>();
         //pane.getChildren().removeAll();
-        System.out.println("pos g"+ canvas.getLayoutX() + "  "+canvas.getLayoutY());
+        //System.out.println("pos g"+ canvas.getLayoutX() + "  "+canvas.getLayoutY());
         double tileWidth = canvas.getWidth() / boardSize;
         double tileHight = canvas.getHeight() / boardSize;
         {
@@ -249,9 +246,28 @@ public class GameController implements Initializable
         ((Label)notificationPanel.getChildren().get(0)).setText(message);
     }
 
+    private void hideNotifications()
+    {
+        chatInput.setDisable(false);
+        canvas.setDisable(false);
+        notificationPanel.setVisible(false);
+    }
+
     private void updateNetwork()
     {
-
+        //fixme z kontrolera poprzedniego musze wiedzieć czy hostuje czy nie i zacząć też grę u gracza 2  :c
+        switch (gameState)
+        {
+            case HAS_NOT_STARTED_YET:
+            {
+                if(connectionRef.isDataReady() && connectionRef.getRecivedData().getHeader() == Packet.HEADER_RESPONSE_USER_HAS_JOINED)
+                {
+                    hideNotifications();
+                    //here start game. i need to come up with better names
+                }
+                break;
+            }
+        }
     }
 
     private void updateGraphics()
@@ -271,5 +287,10 @@ public class GameController implements Initializable
             pawn.update();
             pawn.draw(canvas.getGraphicsContext2D());
         }
+    }
+
+    public void setConnection(Connection c)
+    {
+        this.connectionRef = c;
     }
 }

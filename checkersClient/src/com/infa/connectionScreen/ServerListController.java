@@ -44,6 +44,11 @@ public class ServerListController implements Initializable
 
     }
 
+    protected void finalize() throws Throwable
+    {
+        connection.close();
+    }
+
     public void showServerSelectionScene(ActionEvent e) throws IOException
     {
         Parent p = FXMLLoader.load(getClass().getResource("../mainMenu/mainMenu.fxml"));
@@ -141,7 +146,7 @@ public class ServerListController implements Initializable
             {
                 if(!connection.isConnected())
                 {
-                    makeNotification("Cannot connecto to the server");
+                    makeNotification("Cannot connect to the server");
                     return;
                 }
                 boolean run=true;
@@ -155,6 +160,7 @@ public class ServerListController implements Initializable
                             FXMLLoader loader = new FXMLLoader(getClass().getResource("../game/board.fxml"));
                             Parent p = loader.load();
                             GameController g = loader.getController();
+                            g.setConnection(connection);
                             Stage s = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
                             s.setScene(new Scene(p));
                         }

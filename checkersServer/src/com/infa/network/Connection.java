@@ -5,7 +5,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.Socket;
-import java.util.ArrayList;
 
 public class Connection implements Serializable
 {
@@ -23,6 +22,10 @@ public class Connection implements Serializable
 
     protected Room currentRoomRef;
 
+    protected Packet recivedData;
+    protected boolean isDataReady;
+    private static Object isDataReadySynchronized = new Object();
+
 
     public Connection()
     {
@@ -30,6 +33,11 @@ public class Connection implements Serializable
         currentRoomRef = null;
         keepReceiving = true;
         isConnected = false;
+    }
+
+    public void finalize()
+    {
+        this.close();
     }
 
     public void connect(String ip, int port)
@@ -54,6 +62,10 @@ public class Connection implements Serializable
         try
         {
             out.writeObject(data);
+            synchronized (isDataReadySynchronized) {
+
+                isDataReady = false;
+            }
         }
         catch (IOException e)
         {
@@ -61,18 +73,18 @@ public class Connection implements Serializable
         }
     }
 
-    public void sendToAll(Packet data)
-    {
-        //todo jak zrobie klase pakietu
-        try
-        {
-            out.writeObject(data);
-        }
-        catch (IOException e)
-        {
-            System.out.println("Socket not connected to the server");
-        }
-    }
+//    public void sendToAll(Packet data)
+//    {
+//        //todo jak zrobie klase pakietu
+//        try
+//        {
+//            out.writeObject(data);
+//        }
+//        catch (IOException e)
+//        {
+//            System.out.println("Socket not connected to the server");
+//        }
+//    }
 
     protected void startReceiving()
     {
@@ -85,27 +97,30 @@ public class Connection implements Serializable
                 {
                     try
                     {
-                        Packet data = (Packet)in.readObject();
-
-                        byte header = data.getHeader();
-                        switch (header)
-                        {
-                            case Packet.HEADER_CHAT_MESSAGE: System.out.println(data.getData());
-                                break;
-                            case Packet.HEADER_RESPONSE_ROOM_LIST:
-                                ArrayList<Integer>  rooms = (ArrayList<Integer>) data.getData();
-                                if(rooms.size()!=0)
-                                {
-                                    rooms.forEach(e->{
-                                        System.out.println("room "+e);
-                                    });
-                                }
-                                else System.out.println("no open rooms");
-                                break;
-                            case Packet.HEADER_RESPONSE_ERROR:
-                                System.out.println(data.getData());
-                                break;
+                        recivedData = (Packet) in.readObject();
+                        synchronized (isDataReadySynchronized) {
+                            isDataReady = true;
                         }
+                        //byte header = data.getHeader();
+//                        switch (header)
+//                        {
+//                            case Packet.HEADER_CHAT_MESSAGE: System.out.println(data.getData());
+//                        break;
+//                        case Packet.HEADER_RESPONSE_ROOM_LIST:
+//                            ArrayList<Integer>  rooms = (ArrayList<Integer>) data.getData();
+//                            if(rooms.size()!=0)
+//                            {
+//                                rooms.forEach(e->{
+//                                    System.out.println("room "+e);
+//                                });
+//                            }
+//                            else System.out.println("no open rooms");
+//                            break;
+//                        case Packet.HEADER_RESPONSE_ERROR:
+//                            System.out.println(data.getData());
+//                            break;
+//                        }
+
                     }
                     catch (IOException | ClassNotFoundException e)
                     {
@@ -120,7 +135,7 @@ public class Connection implements Serializable
                         }
                         if(state!=ConnectionStates.LOCALLY_CLOSED)state = ConnectionStates.REMOTELY_CLOSED;
                         isConnected = false;
-                        System.out.println("com.infa.network.Connection with server has been broken");
+                        System.out.println("Connection with server has been broken");
                         e.printStackTrace();
                     }
                 }
@@ -207,5 +222,32 @@ public class Connection implements Serializable
     {
         this.currentRoomRef = currentRoomRef;
     }
+
+    public Packet getRecivedData()
+    {
+        return recivedData;
+    }
+
+    public void setRecivedData(Packet recivedData)
+    {
+        this.recivedData = recivedData;
+    }
+
+    public boolean isDataReady()
+    {
+        synchronized (isDataReadySynchronized) {
+
+            return isDataReady;
+        }
+    }
+
+    public void setDataReady(boolean dataReady)
+    {
+        synchronized (isDataReadySynchronized) {
+
+            isDataReady = dataReady;
+        }
+    }
+
 
 }
