@@ -4,7 +4,7 @@ import game.Board;
 
 import java.util.Scanner;
 
-public class Main
+public class ServerMain
 {
     public static void main(String[] args)
     {

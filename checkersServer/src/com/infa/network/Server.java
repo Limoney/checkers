@@ -147,43 +147,7 @@ public class Server
                             break;
                             case Packet.HEADER_REQUEST_NEW_ROOM:
                             {
-                                //i wil refactor all of this this later
-                                //just want it to work
-                                //check if user isn't already in room
-                                Room tmp;
-                                if(c.getCurrentRoomRef()==null)
-                                {
-                                    tmp = new Room();
-                                    tmp.ref1 = c;
-                                    rooms.add(tmp);
-                                    c.setCurrentRoomRef(tmp);
-                                }
-                                else
-                                {
-                                    //after user leaves room will become empty so it will be removed
-                                    if(c.getCurrentRoomRef().ref2==null)
-                                    {
-                                        tmp = new Room();
-                                        tmp.ref1 = c;
-                                        rooms.add(tmp);
-                                        leaveRoom(c);
-                                        c.setCurrentRoomRef(tmp);
-                                    }
-                                    //user is not alone in room so it will stay open
-                                    //this is here in case user manages to send this header while in room
-                                    else
-                                    {
-                                        leaveRoom(c);
-                                        tmp = new Room();
-                                        tmp.ref1 = c;
-                                        rooms.add(tmp);
-                                        c.setCurrentRoomRef(tmp);
-                                    }
-                                }
-                                Packet p = new Packet();
-                                p.setHeader(Packet.HEADER_RESPONSE_NEW_ROOM);
-                                p.setData(tmp.getBoard());
-                                c.send(p);//tu kończe bo lenia mam - zrobić odbiór po drugiej stronie
+                                createRoom(c);
                             }
                             break;
                             case Packet.HEADER_REQUEST_LEAVE_ROOM:
@@ -193,70 +157,7 @@ public class Server
                             break;
                             case Packet.HEADER_REQUEST_JOIN_ROOM:
                             {
-                                int roomId;
-                                try
-                                {
-                                    roomId = Integer.parseInt(data.getData().toString());
-                                }
-                                catch(NumberFormatException e)
-                                {
-                                    Packet p = new Packet(Packet.HEADER_RESPONSE_ERROR,"Invalid room ID");
-                                    c.send(p);
-                                    break;
-                                }
-
-                                Room tmp = null;
-                                //find room with given id
-                                for (Room e : rooms)
-                                {
-                                    if (e.id == roomId) tmp = e;
-                                    tmp.ref2 = c;
-                                    c.setCurrentRoomRef(e);
-                                    Packet p = new Packet(Packet.HEADER_RESPONSE_JOIN_ROOM,"replace me with board object");
-                                    c.send(p);
-
-                                    //send information to client that game is ready
-                                    p.setHeader(Packet.HEADER_RESPONSE_USER_HAS_JOINED);
-                                    p.setData(null);
-                                    c.send(p);
-
-                                    p.setHeader(Packet.HEADER_RESPONSE_USER_HAS_JOINED);
-                                    p.setData("replace me with board object");
-                                    tmp.ref1.send(p);
-                                    break;
-                                }
-                                if(tmp!=null)
-                                {
-                                    //if room exists check if there is only one player
-                                    if(tmp.ref2==null)
-                                    {
-                                        tmp.ref2 = c;
-                                        Packet p = new Packet(Packet.HEADER_RESPONSE_JOIN_ROOM,"replace me with board object");
-                                        c.send(p);
-
-                                        //send information to client that game is ready
-                                        p.setHeader(Packet.HEADER_RESPONSE_USER_HAS_JOINED);
-                                        p.setData(null);
-                                        c.send(p);
-
-                                        p.setHeader(Packet.HEADER_RESPONSE_USER_HAS_JOINED);
-                                        p.setData("replace me with board object");
-                                        tmp.ref1.send(p);
-                                    }
-                                    else
-                                    {
-                                        //send error
-                                        Packet p = new Packet(Packet.HEADER_RESPONSE_ERROR,"Room is full");
-                                        c.send(p);
-                                    }
-                                }
-                                else
-                                {
-                                    //send error
-                                    Packet p = new Packet(Packet.HEADER_RESPONSE_ERROR,"Unable to find room");
-                                    c.send(p);
-                                }
-                                break;
+                                joinRoom(c,data);
                             }
                         }
 
@@ -322,6 +223,115 @@ public class Server
     public boolean isClosed()
     {
         return isClosed;
+    }
+
+    private void createRoom(Connection c)
+    {
+        //i wil refactor all of this this later
+        //just want it to work
+        //check if user isn't already in room
+        Room tmp;
+        if(c.getCurrentRoomRef()==null)
+        {
+            tmp = new Room();
+            tmp.ref1 = c;
+            rooms.add(tmp);
+            c.setCurrentRoomRef(tmp);
+        }
+        else
+        {
+            //after user leaves room will become empty so it will be removed
+            if(c.getCurrentRoomRef().ref2==null)
+            {
+                tmp = new Room();
+                tmp.ref1 = c;
+                rooms.add(tmp);
+                leaveRoom(c);
+                c.setCurrentRoomRef(tmp);
+            }
+            //user is not alone in room so it will stay open
+            //this is here in case user manages to send this header while in room
+            else
+            {
+                leaveRoom(c);
+                tmp = new Room();
+                tmp.ref1 = c;
+                rooms.add(tmp);
+                c.setCurrentRoomRef(tmp);
+            }
+        }
+        Packet p = new Packet();
+        p.setHeader(Packet.HEADER_RESPONSE_NEW_ROOM);
+        p.setData(tmp.getBoard());
+        c.send(p);//tu kończe bo lenia mam - zrobić odbiór po drugiej stronie
+    }
+
+    private void joinRoom(Connection c,Packet data)
+    {
+        int roomId;
+        try
+        {
+            roomId = Integer.parseInt(data.getData().toString());
+        }
+        catch(NumberFormatException e)
+        {
+            Packet p = new Packet(Packet.HEADER_RESPONSE_ERROR,"Invalid room ID");
+            c.send(p);
+            return;
+        }
+
+        Room tmp = null;
+        //find room with given id
+        for (Room e : rooms)
+        {
+            if (e.id == roomId) tmp = e;
+//            tmp.ref2 = c;
+//            c.setCurrentRoomRef(e);
+//            Packet p = new Packet(Packet.HEADER_RESPONSE_JOIN_ROOM,"replace me with board object");
+//            c.send(p);
+//
+//            //send information to client that game is ready
+//            p.setHeader(Packet.HEADER_RESPONSE_USER_HAS_JOINED);
+//            p.setData(null);
+//            c.send(p);
+//
+//            p.setHeader(Packet.HEADER_RESPONSE_USER_HAS_JOINED);
+//            p.setData("replace me with board object");
+//            tmp.ref1.send(p);
+//            break;
+        }
+        if(tmp!=null)
+        {
+            //if room exists check if there is only one player
+            if(tmp.ref2==null)
+            {
+                tmp.ref2 = c;
+                c.currentRoomRef = tmp;
+                Packet p = new Packet(Packet.HEADER_RESPONSE_JOIN_ROOM,"replace me with board object");
+                c.send(p);
+
+                //send information to client that game is ready
+                p.setHeader(Packet.HEADER_RESPONSE_USER_HAS_JOINED);
+                p.setData(null);
+                c.send(p);
+
+                p.setHeader(Packet.HEADER_RESPONSE_USER_HAS_JOINED);
+                p.setData("replace me with board object");
+                tmp.ref1.send(p);
+            }
+            else
+            {
+                //send error
+                Packet p = new Packet(Packet.HEADER_RESPONSE_ERROR,"Room is full");
+                c.send(p);
+            }
+        }
+        else
+        {
+            //send error
+            Packet p = new Packet(Packet.HEADER_RESPONSE_ERROR,"Unable to find room");
+            c.send(p);
+        }
     }
 
     private void leaveRoom(Connection c)

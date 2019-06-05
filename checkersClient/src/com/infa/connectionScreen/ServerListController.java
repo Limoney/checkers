@@ -31,6 +31,7 @@ public class ServerListController implements Initializable
     @FXML private StackPane notificationPanel;
     @FXML private StackPane serverTableWrapper;
     @FXML private GridPane directConnectWrapper;
+
     private Connection connection;
 
     @Override
@@ -244,5 +245,10 @@ public class ServerListController implements Initializable
                 }
             }
         });
+    }
+
+    public void setConnection(Connection connection)
+    {
+        this.connection = connection;
     }
 }

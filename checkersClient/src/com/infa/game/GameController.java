@@ -1,9 +1,12 @@
 package com.infa.game;
 
+import com.infa.connectionScreen.ServerListController;
 import com.infa.network.Connection;
 import com.infa.network.Packet;
+import com.sun.security.ntlm.Server;
 import game.Board;
 import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -59,6 +62,11 @@ public class GameController implements Initializable
         windowFrame.widthProperty().addListener(resize);
         windowFrame.heightProperty().addListener(resize);
         startNewGame();
+    }
+
+    protected void finalize() throws Throwable
+    {
+        System.out.println("Game Controller destructed");
     }
 
 //    public void newGame(ActionEvent e)
@@ -235,7 +243,22 @@ public class GameController implements Initializable
 
     public void leaveGame(ActionEvent actionEvent)
     {
-        /*connection.close();*/
+        Packet pt = new Packet(Packet.HEADER_REQUEST_LEAVE_ROOM,null);
+        connectionRef.send(pt);
+        try
+        {
+            gameState = GameState.HAS_ENDED;
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("../connectionScreen/serverList.fxml"));
+            Parent p = loader.load();
+            ServerListController g = loader.getController();
+            connectionRef=null;
+            Stage s = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
+            s.setScene(new Scene(p));
+        }
+        catch(Exception ex)
+        {
+            ex.printStackTrace();
+        }
     }
 
     private void makeNotification(String message)
