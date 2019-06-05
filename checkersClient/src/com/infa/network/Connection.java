@@ -38,6 +38,7 @@ public class Connection implements Serializable
     public void finalize()
     {
         this.close();
+        System.out.println("destructor");
     }
 
     public void connect(String ip, int port)

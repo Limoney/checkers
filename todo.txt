@@ -1,0 +1,1 @@
+zmieniæ tworzenie nowego roomu na funkcjê po³¹czon¹ z join room

@@ -61,23 +61,23 @@ public class GameController implements Initializable
         startNewGame();
     }
 
-    public void newGame(ActionEvent e)
-    {
-        leaveGame(e);
-        chatMessages.setText("");
-        chatInput.setText("");
-        Parent p = null;
-        try
-        {
-            p = FXMLLoader.load(getClass().getResource("../connectionScreen/serverList.fxml"));
-            Stage s = (Stage)((Node)e.getSource()).getScene().getWindow();
-            s.setScene(new Scene(p));
-        }
-        catch (IOException exc)
-        {
-            exc.printStackTrace();
-        }
-    }
+//    public void newGame(ActionEvent e)
+//    {
+//        leaveGame(e);
+//        chatMessages.setText("");
+//        chatInput.setText("");
+//        Parent p = null;
+//        try
+//        {
+//            p = FXMLLoader.load(getClass().getResource("../connectionScreen/serverList.fxml"));
+//            Stage s = (Stage)((Node)e.getSource()).getScene().getWindow();
+//            s.setScene(new Scene(p));
+//        }
+//        catch (IOException exc)
+//        {
+//            exc.printStackTrace();
+//        }
+//    }
 
     public void startNewGame()
     {
@@ -260,13 +260,24 @@ public class GameController implements Initializable
         {
             case HAS_NOT_STARTED_YET:
             {
-                if(connectionRef.isDataReady() && connectionRef.getRecivedData().getHeader() == Packet.HEADER_RESPONSE_USER_HAS_JOINED)
+                if(connectionRef.isDataReady() && connectionRef.getRecivedData().getHeader() == Packet.HEADER_RESPONSE_USER_HAS_JOINED && gameState!=GameState.PLAYING)
                 {
                     hideNotifications();
                     //here start game. i need to come up with better names
+                    gameState = GameState.PLAYING;
                 }
                 break;
             }
+            case PLAYING:
+            {
+               if(connectionRef.isDataReady() && connectionRef.getRecivedData().getHeader()==Packet.HEADER_RESPONSE_USER_HAS_LEFT)
+               {
+                   makeNotification("Player has left the game. You win!");
+                   gameState = GameState.HAS_ENDED;
+                   System.out.println("he left");
+               }
+            }
+            break;
         }
     }
 

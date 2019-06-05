@@ -16,6 +16,7 @@ public class Packet implements Serializable
     public static final byte HEADER_CHAT_MESSAGE = 51;
     public static final byte HEADER_RESPONSE_ERROR = 61;
     public static final byte HEADER_RESPONSE_USER_HAS_JOINED = 71;
+    public static final byte HEADER_RESPONSE_USER_HAS_LEFT = 72;
 
     public Packet()
     {

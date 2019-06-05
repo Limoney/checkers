@@ -210,11 +210,20 @@ public class Server
                                 for (Room e : rooms)
                                 {
                                     if (e.id == roomId) tmp = e;
-                                    //commented 04.06.2019
-//                                    c.setCurrentRoomRef(e);
-//                                    Packet p = new Packet(Packet.HEADER_RESPONSE_JOIN_ROOM,"replace me with board object");
-//                                    c.send(p);
-                                    //break?
+                                    tmp.ref2 = c;
+                                    c.setCurrentRoomRef(e);
+                                    Packet p = new Packet(Packet.HEADER_RESPONSE_JOIN_ROOM,"replace me with board object");
+                                    c.send(p);
+
+                                    //send information to client that game is ready
+                                    p.setHeader(Packet.HEADER_RESPONSE_USER_HAS_JOINED);
+                                    p.setData(null);
+                                    c.send(p);
+
+                                    p.setHeader(Packet.HEADER_RESPONSE_USER_HAS_JOINED);
+                                    p.setData("replace me with board object");
+                                    tmp.ref1.send(p);
+                                    break;
                                 }
                                 if(tmp!=null)
                                 {
@@ -224,6 +233,12 @@ public class Server
                                         tmp.ref2 = c;
                                         Packet p = new Packet(Packet.HEADER_RESPONSE_JOIN_ROOM,"replace me with board object");
                                         c.send(p);
+
+                                        //send information to client that game is ready
+                                        p.setHeader(Packet.HEADER_RESPONSE_USER_HAS_JOINED);
+                                        p.setData(null);
+                                        c.send(p);
+
                                         p.setHeader(Packet.HEADER_RESPONSE_USER_HAS_JOINED);
                                         p.setData("replace me with board object");
                                         tmp.ref1.send(p);
@@ -321,12 +336,16 @@ public class Server
         {
             if(c.getCurrentRoomRef().ref1.equals(c))
             {
+                Packet p = new Packet(Packet.HEADER_RESPONSE_USER_HAS_LEFT,null);
+                c.getCurrentRoomRef().ref2.send(p);
                 c.getCurrentRoomRef().ref1 = c.getCurrentRoomRef().ref2;
                 c.getCurrentRoomRef().ref2 = null;
                 c.setCurrentRoomRef(null);
             }
             else
             {
+                Packet p = new Packet(Packet.HEADER_RESPONSE_USER_HAS_LEFT,null);
+                c.getCurrentRoomRef().ref1.send(p);
                 c.getCurrentRoomRef().ref2 = null;
                 c.setCurrentRoomRef(null);
             }

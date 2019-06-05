@@ -154,13 +154,14 @@ public class ServerListController implements Initializable
                 {
                     if(connection.isDataReady())
                     {
-                        Board board = (Board)connection.getRecivedData().getData();
+                        //Board board = (Board)connection.getRecivedData().getData();
                         try
                         {
                             FXMLLoader loader = new FXMLLoader(getClass().getResource("../game/board.fxml"));
                             Parent p = loader.load();
                             GameController g = loader.getController();
                             g.setConnection(connection);
+                            connection=null;
                             Stage s = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
                             s.setScene(new Scene(p));
                         }
@@ -223,14 +224,20 @@ public class ServerListController implements Initializable
                 {
                     if(connection.isDataReady())
                     {
-                        //load game here
-                        if(connection.getRecivedData().getHeader()==Packet.HEADER_RESPONSE_ERROR)
+                        //Board board = (Board)connection.getRecivedData().getData();
+                        try
                         {
-                            makeNotification(connection.getRecivedData().getData().toString());
+                            FXMLLoader loader = new FXMLLoader(getClass().getResource("../game/board.fxml"));
+                            Parent p = loader.load();
+                            GameController g = loader.getController();
+                            g.setConnection(connection);
+                            connection=null;
+                            Stage s = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
+                            s.setScene(new Scene(p));
                         }
-                        else
+                        catch(Exception ex)
                         {
-                            System.out.println("YOU IN BOI");
+                            ex.printStackTrace();
                         }
                         run=false;
                     }
