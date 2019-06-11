@@ -89,6 +89,8 @@ public class GameController implements Initializable
 
     public void startNewGame()
     {
+        chatInput.setText("");
+        chatMessages.setText("");
         gameState = GameState.HAS_NOT_STARTED_YET;
         makeNotification("waiting for player");
         generateBoard();
@@ -236,9 +238,9 @@ public class GameController implements Initializable
     {
         String m = chatInput.getText();
         chatMessages.appendText(m+"\n");
-        //connection.send(m);
+        Packet p = new Packet(Packet.HEADER_CHAT_MESSAGE,m);
+        connectionRef.send(p);
         chatInput.setText("");
-
     }
 
     public void leaveGame(ActionEvent actionEvent)
@@ -283,22 +285,45 @@ public class GameController implements Initializable
         {
             case HAS_NOT_STARTED_YET:
             {
-                if(connectionRef.isDataReady() && connectionRef.getRecivedData().getHeader() == Packet.HEADER_RESPONSE_USER_HAS_JOINED && gameState!=GameState.PLAYING)
+                try
                 {
-                    hideNotifications();
-                    //here start game. i need to come up with better names
-                    gameState = GameState.PLAYING;
+                    if(connectionRef.isDataReady() && connectionRef.getRecivedData().checkHeader(Packet.HEADER_RESPONSE_USER_HAS_JOINED) && gameState!=GameState.PLAYING)
+                    {
+                        hideNotifications();
+                        //here start game. i need to come up with better names
+                        gameState = GameState.PLAYING;
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
                 }
                 break;
             }
             case PLAYING:
             {
-               if(connectionRef.isDataReady() && connectionRef.getRecivedData().getHeader()==Packet.HEADER_RESPONSE_USER_HAS_LEFT)
-               {
-                   makeNotification("Player has left the game. You win!");
-                   gameState = GameState.HAS_ENDED;
-                   System.out.println("he left");
-               }
+                try
+                {
+                    if(connectionRef.isDataReady())
+                    {
+                        if(connectionRef.getRecivedData().checkHeader(Packet.HEADER_RESPONSE_USER_HAS_LEFT))
+                        {
+                            makeNotification("Player has left the game. You win!");
+                            gameState = GameState.HAS_ENDED;
+                            System.out.println("he left");
+                        }
+                        else if(connectionRef.getRecivedData().checkHeader(Packet.HEADER_CHAT_MESSAGE))
+                        {
+                            chatMessages.appendText((connectionRef.getRecivedData().getData()+"\n"));
+                            connectionRef.awaitNewData();
+                        }
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
             }
             break;
         }

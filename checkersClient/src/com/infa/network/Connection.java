@@ -38,7 +38,6 @@ public class Connection implements Serializable
     public void finalize()
     {
         this.close();
-        System.out.println("destructor");
     }
 
     public void connect(String ip, int port)
@@ -238,7 +237,7 @@ public class Connection implements Serializable
     {
         synchronized (isDataReadySynchronized) {
 
-        return isDataReady;
+            return isDataReady;
         }
     }
 
@@ -248,6 +247,11 @@ public class Connection implements Serializable
 
             isDataReady = dataReady;
         }
+    }
+
+    public void awaitNewData()
+    {
+        isDataReady = false;
     }
 
 

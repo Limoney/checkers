@@ -129,52 +129,43 @@ public class Server
                     {
                         Packet data = (Packet)c.getIn().readObject();
 
-                        byte header = data.getHeader();
-                        switch (header)
+                        if(data.checkHeader(Packet.HEADER_CHAT_MESSAGE))
                         {
-                            case Packet.HEADER_CHAT_MESSAGE: System.out.println(data.getData());
-                            break;
-                            case Packet.HEADER_REQUEST_ROOM_LIST:
+                            Packet p = new Packet(Packet.HEADER_CHAT_MESSAGE,data.getData());
+                            if(c.currentRoomRef.ref1.equals(c)) c.getCurrentRoomRef().ref2.send(p);
+                            else c.getCurrentRoomRef().ref1.send(p);
+                            System.out.println(data.getData());
+                        }
+                        if(data.checkHeader(Packet.HEADER_REQUEST_ROOM_LIST))
+                        {
+                            ArrayList<Integer> openRooms = new ArrayList<Integer>();
+                            for(Room r : rooms)
                             {
-                                ArrayList<Integer> openRooms = new ArrayList<Integer>();
-                                for(Room r : rooms)
-                                {
-                                    if(r.ref2==null) openRooms.add(r.id);
-                                }
-                                Packet p = new Packet(Packet.HEADER_RESPONSE_ROOM_LIST,openRooms);
-                                c.send(p);
+                                if(r.ref2==null) openRooms.add(r.id);
                             }
-                            break;
-                            case Packet.HEADER_REQUEST_NEW_ROOM:
-                            {
-                                createRoom(c);
-                            }
-                            break;
-                            case Packet.HEADER_REQUEST_LEAVE_ROOM:
-                            {
-                                leaveRoom(c);
-                            }
-                            break;
-                            case Packet.HEADER_REQUEST_JOIN_ROOM:
-                            {
-                                joinRoom(c,data);
-                            }
+                            Packet p = new Packet(Packet.HEADER_RESPONSE_ROOM_LIST,openRooms);
+                            c.send(p);
+                        }
+                        if(data.checkHeader(Packet.HEADER_REQUEST_NEW_ROOM))
+                        {
+                            createRoom(c);
+                        }
+                        if(data.checkHeader(Packet.HEADER_CHAT_MESSAGE))
+                        {
+
+                            //System.out.println(c.getRecivedData().toString());
+                        }
+                        if(data.checkHeader(Packet.HEADER_REQUEST_LEAVE_ROOM))
+                        {
+                            leaveRoom(c);
+                        }
+                        if(data.checkHeader(Packet.HEADER_REQUEST_JOIN_ROOM))
+                        {
+                            joinRoom(c,data);
                         }
 
-                        //send to all
-//                        if( data.toString().charAt(data.toString().length()-1) =='>')//> temp
-//                        {
-//                            for(com.infa.network.Connection cc : clients_.keySet())
-//                            {
-//                                if(cc.getId()!=c.getId())
-//                                {
-//                                    cc.send(data);
-//                                    break;
-//                                }
-//                            }
-//                        }
                     }
-                    catch (IOException | ClassNotFoundException e)
+                    catch (Exception e)
                     {
                         leaveRoom(c);
                         System.out.println("Client with connection id: "+c.getId()+" disconnected");
@@ -307,12 +298,8 @@ public class Server
             {
                 tmp.ref2 = c;
                 c.currentRoomRef = tmp;
-                Packet p = new Packet(Packet.HEADER_RESPONSE_JOIN_ROOM,"replace me with board object");
-                c.send(p);
-
                 //send information to client that game is ready
-                p.setHeader(Packet.HEADER_RESPONSE_USER_HAS_JOINED);
-                p.setData(null);
+                Packet p = new Packet(Packet.HEADER_RESPONSE_JOIN_ROOM | Packet.HEADER_RESPONSE_USER_HAS_JOINED,"replace me with board object");
                 c.send(p);
 
                 p.setHeader(Packet.HEADER_RESPONSE_USER_HAS_JOINED);

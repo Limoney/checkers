@@ -249,5 +249,10 @@ public class Connection implements Serializable
         }
     }
 
+    public void awaitNewData()
+    {
+        isDataReady = false;
+    }
+
 
 }

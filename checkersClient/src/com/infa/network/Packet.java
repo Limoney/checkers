@@ -1,40 +1,42 @@
 package com.infa.network;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 
 public class Packet implements Serializable
 {
-    private byte header;
+    private int header;
     private Serializable data;
-    public static final byte HEADER_REQUEST_ROOM_LIST = 11;
-    public static final byte HEADER_RESPONSE_ROOM_LIST = 12;
-    public static final byte HEADER_REQUEST_JOIN_ROOM = 21;
-    public static final byte HEADER_RESPONSE_JOIN_ROOM = 22;
-    public static final byte HEADER_REQUEST_NEW_ROOM = 31;
-    public static final byte HEADER_RESPONSE_NEW_ROOM = 32;
-    public static final byte HEADER_REQUEST_LEAVE_ROOM = 41;
-    public static final byte HEADER_CHAT_MESSAGE = 51;
-    public static final byte HEADER_RESPONSE_ERROR = 61;
-    public static final byte HEADER_RESPONSE_USER_HAS_JOINED = 71;
-    public static final byte HEADER_RESPONSE_USER_HAS_LEFT = 72;
+
+    public static final int HEADER_REQUEST_ROOM_LIST = 1;
+    public static final int HEADER_RESPONSE_ROOM_LIST = 2;
+    public static final int HEADER_REQUEST_JOIN_ROOM = 4;
+    public static final int HEADER_RESPONSE_JOIN_ROOM = 8;
+    public static final int HEADER_REQUEST_NEW_ROOM = 16;
+    public static final int HEADER_RESPONSE_NEW_ROOM = 32;
+    public static final int HEADER_REQUEST_LEAVE_ROOM = 64;
+    public static final int HEADER_CHAT_MESSAGE = 128;
+    public static final int HEADER_RESPONSE_ERROR = 256;
+    public static final int HEADER_RESPONSE_USER_HAS_JOINED = 512;
+    public static final int HEADER_RESPONSE_USER_HAS_LEFT = 1024;
 
     public Packet()
     {
 
     }
 
-    public Packet(byte header, Serializable data)
+    public Packet(int header, Serializable data)
     {
         this.header = header;
         this.data = data;
     }
 
-    public byte getHeader()
+    public int getHeader()
     {
         return header;
     }
 
-    public void setHeader(byte header)
+    public void setHeader(int header)
     {
         this.header = header;
     }
@@ -49,4 +51,37 @@ public class Packet implements Serializable
         this.data = data;
     }
 
+    public boolean checkHeader(int header) throws Exception
+    {
+        int index =  findFirstOne(header);
+        if(index==-1) throw new Exception("Invalid header");
+        if(intToBinaryString(this.header).charAt(index)=='1') return true;
+        else return false;
+    }
+
+    public static String intToBinaryString(int n)
+    {
+        String s = "";
+        while (n > 0)
+        {
+            s =  ( (n % 2 ) == 0 ? "0" : "1") +s;
+            n = n / 2;
+        }
+        while(s.length()<Integer.SIZE)
+        {
+            s="0"+s;
+        }
+        return s;
+    }
+
+    private static int findFirstOne(int x)
+    {
+        String binaryStr = intToBinaryString(x);
+        int length = binaryStr.length();
+        for(int i=0; i<length; i++)
+        {
+            if(binaryStr.charAt(i)=='1')  return i;
+        }
+        return -1;
+    }
 }
