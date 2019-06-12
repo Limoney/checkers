@@ -160,6 +160,7 @@ public class GameController implements Initializable
                     double margin = (tileWidth - tileWidth*0.8f)/2 ;
                     Pawn p = new Pawn(x*(float)tileWidth + (float)emptyX + (float)margin,y * (float)tileHight + (float)emptyY + (float)margin,Color.GAINSBORO);
                     p.setRadius(tileWidth*0.8f);
+                    p.setCurrentTile(tile);
                     pawns.add(p);
                     tile.setOwner(p);
                 }
@@ -168,6 +169,7 @@ public class GameController implements Initializable
                     double margin = (tileWidth - tileWidth*0.8f)/2 ;
                     Pawn p = new Pawn(x*(float)tileWidth + (float)emptyX + (float)margin,y * (float)tileHight + (float)emptyY + (float)margin,Color.DARKGRAY);
                     p.setRadius(tileWidth*0.8f);
+                    p.setCurrentTile(tile);
                     pawns.add(p);
                     tile.setOwner(p);
                 }
@@ -231,7 +233,8 @@ public class GameController implements Initializable
         while ( pawnIterator.hasNext() )
         {
             Pawn pawn = pawnIterator.next();
-            pawn.isSelected(mouseX,mouseY);
+            if(pawn.isSelected(mouseX,mouseY)) highlightTile(pawn,true);
+            else  highlightTile(pawn,false);
         }
     }
 
@@ -351,9 +354,16 @@ public class GameController implements Initializable
         }
     }
 
-    public void highlightTile(Pawn pawn)
+    public void highlightTile(Pawn pawn,boolean state)
     {
         //if(pawn.getX()>0 && pawn.getX() + sth < canvas.getWidth())
+        int index = pawn.getCurrentTile().getBoardIndex();
+        //if(index%board.getSize()>0 && index%board.getSize()<board.getSize()-1)
+        {
+            tiles.get(index).setHighlight(state);
+            tiles.get(index+1).setHighlight(state);
+            tiles.get(index-1).setHighlight(state);
+        }
     }
 
     public void setConnection(Connection c)

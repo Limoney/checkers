@@ -115,7 +115,7 @@ public class Tile
 
     public void setHighlight(boolean state)
     {
-        if(state) this.colorCopy = Color.AZURE;
+        if(state) this.colorCopy = Color.GREEN;
         else this.colorCopy = this.color;
     }
 

@@ -14,6 +14,7 @@ public class Pawn
     private double x;
     private double y;
     private double radius;
+    private Tile currentTile;
 
     Pawn(float x, float y, Color color)
     {
@@ -98,6 +99,7 @@ public class Pawn
         if( distance <=radius*0.5)
         {
             //System.out.println(distance +"    "+radius*0.5);
+
             this.colorCopy = Color.RED;
             return true;
         }
@@ -108,4 +110,18 @@ public class Pawn
             return false;
         }
     }
+
+
+    public Tile getCurrentTile()
+    {
+        return currentTile;
+    }
+
+    public void setCurrentTile(Tile currentTile)
+    {
+        this.currentTile = currentTile;
+    }
+
+
+
 }
