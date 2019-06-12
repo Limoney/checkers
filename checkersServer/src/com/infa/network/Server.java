@@ -299,11 +299,11 @@ public class Server
                 tmp.ref2 = c;
                 c.currentRoomRef = tmp;
                 //send information to client that game is ready
-                Packet p = new Packet(Packet.HEADER_RESPONSE_JOIN_ROOM | Packet.HEADER_RESPONSE_USER_HAS_JOINED,"replace me with board object");
+                Packet p = new Packet(Packet.HEADER_RESPONSE_JOIN_ROOM | Packet.HEADER_RESPONSE_USER_HAS_JOINED,tmp.getBoard());
                 c.send(p);
 
                 p.setHeader(Packet.HEADER_RESPONSE_USER_HAS_JOINED);
-                p.setData("replace me with board object");
+                p.setData(null);
                 tmp.ref1.send(p);
             }
             else

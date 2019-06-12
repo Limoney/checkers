@@ -61,7 +61,7 @@ public class GameController implements Initializable
         ChangeListener<Number> resize =(observable, oldValue, newValue) -> resizeBoard();
         windowFrame.widthProperty().addListener(resize);
         windowFrame.heightProperty().addListener(resize);
-        startNewGame();
+
     }
 
     protected void finalize() throws Throwable
@@ -89,6 +89,7 @@ public class GameController implements Initializable
 
     public void startNewGame()
     {
+        board.show();
         chatInput.setText("");
         chatMessages.setText("");
         gameState = GameState.HAS_NOT_STARTED_YET;
@@ -149,12 +150,12 @@ public class GameController implements Initializable
             for(int x=0;x<boardSize;x++)
             {
                 //generate Tiles
-                Tile tile = new Tile(x*tileWidth + emptyX ,y*tileHight+emptyY,tileWidth,tileHight,((x+y*boardSize+y) %2==0) ? Color.WHITE : Color.BLACK);
+                Tile tile = new Tile(x*tileWidth + emptyX ,y*tileHight+emptyY,tileWidth,tileHight,((x+y*boardSize+y) %2==0) ? Color.WHITE : Color.BLACK,x+y*boardSize);
                 tiles.add(tile);
                 System.out.print(x+y*boardSize+" ");
 
                 //generate Pawns
-                if(y<2)
+                if(board.getBoard().get(x+y*board.getSize())==1)
                 {
                     double margin = (tileWidth - tileWidth*0.8f)/2 ;
                     Pawn p = new Pawn(x*(float)tileWidth + (float)emptyX + (float)margin,y * (float)tileHight + (float)emptyY + (float)margin,Color.GAINSBORO);
@@ -162,7 +163,7 @@ public class GameController implements Initializable
                     pawns.add(p);
                     tile.setOwner(p);
                 }
-                else if(y>5)
+                else if(board.getBoard().get(x+y*board.getSize())==2)
                 {
                     double margin = (tileWidth - tileWidth*0.8f)/2 ;
                     Pawn p = new Pawn(x*(float)tileWidth + (float)emptyX + (float)margin,y * (float)tileHight + (float)emptyY + (float)margin,Color.DARKGRAY);
@@ -179,6 +180,7 @@ public class GameController implements Initializable
     private void resizeBoard()
     {
         resizeUI();
+        if(board==null) return;
         double tileWidth = canvas.getWidth() / boardSize;
         double tileHight = canvas.getHeight() / boardSize;
         {
@@ -290,6 +292,7 @@ public class GameController implements Initializable
                     if(connectionRef.isDataReady() && connectionRef.getRecivedData().checkHeader(Packet.HEADER_RESPONSE_USER_HAS_JOINED) && gameState!=GameState.PLAYING)
                     {
                         hideNotifications();
+                        //startNewGame();
                         //here start game. i need to come up with better names
                         gameState = GameState.PLAYING;
                     }
@@ -348,8 +351,15 @@ public class GameController implements Initializable
         }
     }
 
+    public void highlightTile(Pawn pawn)
+    {
+        //if(pawn.getX()>0 && pawn.getX() + sth < canvas.getWidth())
+    }
+
     public void setConnection(Connection c)
     {
         this.connectionRef = c;
     }
+
+    public void setBoard(Board b){this.board = b;}
 }

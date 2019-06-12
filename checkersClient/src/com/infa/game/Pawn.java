@@ -7,6 +7,7 @@ public class Pawn
 {
 
     private Color color;
+    private Color colorCopy;
     private static double tileWidth;
     private static double tileHeight;
     private static float sizeMult = 0.4f;
@@ -20,6 +21,7 @@ public class Pawn
         this.x =x;
         this.y = y;
         this.color = color;
+        this.colorCopy = color;
     }
 
     public static void setTileWidth(double tileWidth)
@@ -38,7 +40,7 @@ public class Pawn
     }
     public void draw(GraphicsContext gc)
     {
-        gc.setFill(color);
+        gc.setFill(colorCopy);
         gc.fillOval(x,y,radius,radius);
         gc.setFill(Color.RED);
         gc.fillOval(x + radius*0.5,y + radius*0.5,1,1);
@@ -95,12 +97,14 @@ public class Pawn
         double distance = Math.hypot(mouseX-pcenterX, mouseY-pcenterY);
         if( distance <=radius*0.5)
         {
-            System.out.println(distance +"    "+radius*0.5);
+            //System.out.println(distance +"    "+radius*0.5);
+            this.colorCopy = Color.RED;
             return true;
         }
         else
         {
             //System.out.println("nope");
+            this.colorCopy = this.color;
             return false;
         }
     }

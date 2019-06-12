@@ -49,4 +49,6 @@ public class Board implements Serializable
     {
         return board;
     }
+
+    public byte getSize() {return boardSize;}
 }

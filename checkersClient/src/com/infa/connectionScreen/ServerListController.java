@@ -155,13 +155,15 @@ public class ServerListController implements Initializable
                 {
                     if(connection.isDataReady())
                     {
-                        //Board board = (Board)connection.getRecivedData().getData();
+                        Board board = (Board)connection.getRecivedData().getData();
                         try
                         {
                             FXMLLoader loader = new FXMLLoader(getClass().getResource("../game/board.fxml"));
                             Parent p = loader.load();
                             GameController g = loader.getController();
                             g.setConnection(connection);
+                            g.setBoard(board);
+                            g.startNewGame();
                             connection=null;
                             Stage s = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
                             s.setScene(new Scene(p));
@@ -225,13 +227,15 @@ public class ServerListController implements Initializable
                 {
                     if(connection.isDataReady())
                     {
-                        //Board board = (Board)connection.getRecivedData().getData();
+                        Board board = (Board)connection.getRecivedData().getData();
                         try
                         {
                             FXMLLoader loader = new FXMLLoader(getClass().getResource("../game/board.fxml"));
                             Parent p = loader.load();
                             GameController g = loader.getController();
                             g.setConnection(connection);
+                            g.setBoard(board);
+                            g.startNewGame();
                             connection=null;
                             Stage s = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
                             s.setScene(new Scene(p));

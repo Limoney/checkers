@@ -7,20 +7,24 @@ public class Tile
 {
     private boolean isEmpty;
     private Color color;
+    private Color colorCopy;
     private double x;
     private double y;
     private double w;
     private double h;
     private Pawn owner;
+    private int boardIndex;
 
-    public Tile(double x, double y,double w, double h,Color c)
+    public Tile(double x, double y,double w, double h,Color c, int index)
     {
         this.x = x;
         this.y = y;
         this.w = w;
         this.h = h;
-        color = c;
-        owner = null;
+        this.color = c;
+        this.colorCopy = c;
+        this.owner = null;
+        this.boardIndex = index;
     }
 
     public void update()
@@ -30,7 +34,7 @@ public class Tile
 
     public void draw(GraphicsContext gc)
     {
-        gc.setFill(color);
+        gc.setFill(colorCopy);
         gc.fillRect(x,y,w,h);
     }
 
@@ -109,5 +113,11 @@ public class Tile
        this.y = y;
     }
 
+    public void setHighlight(boolean state)
+    {
+        if(state) this.colorCopy = Color.AZURE;
+        else this.colorCopy = this.color;
+    }
 
+    public int getBoardIndex(){return this.boardIndex;}
 }
